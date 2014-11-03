@@ -4,7 +4,7 @@
 
 # Author: Abhay Mittal
 url=$1
-page_source=$(lynx -source "$url") # Grab the html source
+page_source=$(curl "$url") # Grab the html source
 
 #Grab the necessary parameters to identify video"
 filekey=$(echo "$page_source" | grep "filekey")
@@ -17,17 +17,19 @@ filekey=${filekey//./%2E}
 file=${file:`expr index "$file" \"`}
 file=${file:0:${#file}-2}
 
+echo "FILEKEY = $filekey"
+echo "FILE = $file"
+
 #Generate the target url
 target_url=$(lynx -source "http://www.movshare.net/api/player.api.php?key=$filekey&file=$file")
-target_url=${target_url:5}
+target_url=${target_url:4}
 target_url=${target_url:0:`expr index "$target_url" \&`-1}
-target_url=$(echo "http://$target_url")
+#target_url=$(echo "http://$target_url")
+echo "TARGET URL = $target_url"
 
 #Grab File Name
 file_name=$(echo $page_source | xmllint --html --xpath '/html/head/title/text()' - 2> /dev/null )
-file_name=$(echo $file_name | cut -d " " -f 2) #Tokenize using space
-file_name=$(echo $file_name | cut -d . -f 3) #Tokenize using .
-file_name=$(echo "$file_name.flv")
+file_name=${file_name// /_}
 echo "$file_name"
 
 #Download the file
