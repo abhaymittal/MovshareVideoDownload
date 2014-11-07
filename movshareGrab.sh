@@ -30,7 +30,7 @@ echo "TARGET URL = $target_url"
 #Grab File Name
 file_name=$(echo $page_source | xmllint --html --xpath '/html/head/title/text()' - 2> /dev/null )
 file_name=${file_name// /_}
-echo "$file_name"
+echo "$file_name.flv"
 
 #Download the file
-aria2c -o "$file_name" -s 5 "$target_url"
+aria2c -o "$file_name" -x 5 -s 5 "$target_url"
