@@ -11,6 +11,6 @@ Syntax
 
 It will use the following packages
 
-xmllint
-aria2
-lynx
+- xmllint
+- aria2
+- lynx
