@@ -4,7 +4,13 @@
 
 # Author: Abhay Mittal
 url=$1
-page_source=$(curl "$url") # Grab the html source
+page_source=$(curl -s "$url") # Grab the html source
+
+#Grab the video site domain name
+domain=$(echo "$page_source" | grep "domain=");
+domain=${domain:`expr index "$domain" \"`}
+domain=${domain:0:${#domain}-2}
+echo $domain
 
 #Grab the necessary parameters to identify video"
 filekey=$(echo "$page_source" | grep "filekey")
@@ -21,16 +27,15 @@ echo "FILEKEY = $filekey"
 echo "FILE = $file"
 
 #Generate the target url
-target_url=$(lynx -source "http://www.movshare.net/api/player.api.php?key=$filekey&file=$file")
+target_url=$(lynx -source  "$domain/api/player.api.php?key=$filekey&file=$file")
 target_url=${target_url:4}
 target_url=${target_url:0:`expr index "$target_url" \&`-1}
-#target_url=$(echo "http://$target_url")
 echo "TARGET URL = $target_url"
 
 #Grab File Name
 file_name=$(echo $page_source | xmllint --html --xpath '/html/head/title/text()' - 2> /dev/null )
 file_name=${file_name// /_}
-echo "$file_name.flv"
+file_name=$(echo "$file_name.flv")
 
 #Download the file
 aria2c -o "$file_name" -x 5 -s 5 "$target_url"
