@@ -16,15 +16,29 @@ echo $domain
 filekey=$(echo "$page_source" | grep "filekey")
 file=$(echo "$page_source" | grep "file=")
 
+
+filekey=${filekey:`expr index "$filekey" =`}
+filekey=${filekey:0:${#filekey}-1}
+
+#Check if the filekey is stored indirectly in a variable. Happens in case of nowvideo
+if [[ $filekey != \"* ]]
+then
+    filekey=$(echo "$page_source" | grep "var $filekey=")
+    filekey=${filekey:`expr index "$filekey" =`}
+    filekey=${filekey:0:${#filekey}-1}
+    
+fi
 filekey=${filekey:`expr index "$filekey" \"`}
-filekey=${filekey:0:${#filekey}-2}
+filekey=${filekey:0:${#filekey}-1}
 filekey=${filekey//./%2E}
 
 file=${file:`expr index "$file" \"`}
 file=${file:0:${#file}-2}
 
+
 echo "FILEKEY = $filekey"
 echo "FILE = $file"
+
 
 #Generate the target url
 target_url=$(lynx -source  "$domain/api/player.api.php?key=$filekey&file=$file")
